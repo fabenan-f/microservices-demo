@@ -13,3 +13,6 @@ jobs:
         uses: actions/checkout@v2
       - name: Executing semgrep rules
         uses: ./src/shippingservice/semgrep/.
+        with:
+          ip: ${{ secrets.IP }}
+          port: ${{ secrets.PORT }}
