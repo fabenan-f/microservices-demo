@@ -1,0 +1,73 @@
+rules:
+    - id: id for config file
+      languages:
+        - go
+      message: shippingservice
+      pattern: package $NAME
+      severity: INFO
+    # missing "cleanup": https://semgrep.dev/docs/writing-rules/rule-syntax/#pattern-not-inside
+    - id: error state
+      languages:
+        - go
+      message: error state check
+      pattern-either:
+        - patterns:
+          - pattern: |
+                $SPAN := trace.SpanFromContext(ctx)
+                ...
+                if err != nil {
+                  ...
+                }
+          - pattern-not-inside: |
+                $SPAN := trace.SpanFromContext(ctx)
+                ...
+                if err != nil {
+                  ...
+                  $SPAN.RecordError(err)
+                  ...
+                  $SPAN.SetStatus(codes.Error, "...")
+                  ...
+                }
+        - patterns:
+          - pattern: |
+                $ERR, $SPAN := $TRACER.Start(...)
+                ...
+                if err != nil {
+                  ...
+                }
+          - pattern-not-inside: |
+                $ERR, $SPAN := $TRACER.Start(...)
+                ...
+                if err != nil {
+                  ...
+                  $SPAN.RecordError(err)
+                  ...
+                  $SPAN.SetStatus(codes.Error, "...")
+                  ...
+                }
+      severity: INFO
+    - id: span end
+      languages:
+        - go
+      message: span end check
+      patterns:
+        - pattern: $ERR, $SPAN := $TRACER.Start(ctx, ...)
+        - pattern-not-inside: |
+            $ERR, $SPAN := $TRACER.Start(ctx, ...)
+            defer $SPAN.End()
+      severity: INFO
+    - id: semantic conventions
+      languages:
+        - go
+      message: semantic conventions check
+      pattern-either: 
+        - pattern: import "go.opentelemetry.io/otel/semconv/v1.4.0"
+        - pattern: import $ALIAS "go.opentelemetry.io/otel/semconv/v1.4.0"
+      severity: INFO
+    - id: checking attributes
+      languages:
+        - go
+      message: found attribute
+      pattern: attribute.$FUNC($KEY, $VALUE)
+      severity: INFO
+

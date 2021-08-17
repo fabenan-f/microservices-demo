@@ -1,0 +1,49 @@
+rules:
+    - id: spans service
+      languages:
+        - go
+      message: spans check
+      pattern-either:
+        - pattern: $SPAN := trace.SpanFromContext(ctx)
+        - pattern: $ERR, $SPAN := $TRACER.Start(...)
+      severity: INFO
+    - id: function counter
+      languages:
+        - go
+      message: function found
+      pattern: |
+            func $FUNC(...) {
+                ...
+            }
+      severity: INFO
+    - id: set attribute
+      languages:
+        - go
+      message: attribute found
+      pattern: |
+          func $FUNC(...) {
+            ...
+            $SPAN.SetAttributes(...)
+            ...
+          }
+      severity: INFO
+    - id: error handlings counter
+      languages:
+        - go
+      message: error handling found
+      pattern: |
+          if err != nil {
+            ...
+          }
+      severity: INFO
+    - id: record error
+      languages:
+        - go
+      message: recording found
+      pattern: |
+          if err != nil {
+            ...
+            $SPAN.RecordError(err)
+            ...
+          }
+      severity: INFO

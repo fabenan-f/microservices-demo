@@ -1,0 +1,5 @@
+name: Running Docker
+description: Resulting docker container contains all necessary semgrep executions
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
