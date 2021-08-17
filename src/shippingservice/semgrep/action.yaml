@@ -1,8 +1,17 @@
 name: Running Docker
 description: Resulting docker container contains all necessary semgrep executions
+inputs:
+  ip:
+    description: ip address
+    required: true
+    default: ${{ secrets.IP }}
+  port:
+    description: port
+    required: true
+    default: ${{ secrets.PORT }}
 runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - ${{ secrets.IP }}
-    - ${{ secrets.PORT }}
+    - ${{ inputs.ip }}
+    - ${{ inputs.port }}
