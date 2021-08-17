@@ -190,6 +190,6 @@ func configOtelTracing() *tracesdk.TracerProvider {
 	// Context will be propagated.
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 
-	log.Info("Tracing is enabled")
+	log.Info("Tracing is enabled!")
 	return tp
 }
