@@ -29,6 +29,7 @@ import (
 	// "google.golang.org/grpc/codes"
 	// "google.golang.org/grpc/status"
 
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/jaeger"
@@ -84,9 +85,9 @@ func main() {
 
 	var srv *grpc.Server
 	srv = grpc.NewServer(
-	// Interceptors update response before it's returned to client
-	// grpc.UnaryInterceptor(grpcotel.UnaryServerInterceptor()),
-	// grpc.StreamInterceptor(grpcotel.StreamServerInterceptor()),
+		// Interceptors update response before it's returned to client
+		grpc.UnaryInterceptor(otelgrpc.UnaryServerInterceptor()),
+		grpc.StreamInterceptor(otelgrpc.StreamServerInterceptor()),
 	)
 
 	svc := &server{}
@@ -127,7 +128,7 @@ func (s *server) GetQuote(ctx context.Context, in *pb.GetQuoteRequest) (*pb.GetQ
 		count += int(item.Quantity)
 	}
 
-	span.SetAttributes(attribute.Int("items", count))
+	span.SetAttributes(attribute.Int("shippingservice.items", count))
 
 	// 2. Generate a quote based on the total number of items to be shipped.
 	quote := CreateQuoteFromCount(count)
