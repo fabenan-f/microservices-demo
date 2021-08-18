@@ -272,7 +272,6 @@ public final class AdService {
         try {
           Thread.sleep(TimeUnit.SECONDS.toMillis(0));
         } catch (Exception se) {
-          span.setStatus(StatusCode.ERROR, "time out error occured");
           logger.log(Level.WARN, "Exception while sleeping" + se.toString());
         }
     
@@ -319,13 +318,6 @@ public final class AdService {
     Runtime.getRuntime().addShutdownHook(new Thread(tracerProvider::close));
     
     logger.info("Tracing is enabled");
-
-    // Tracer tracer = tracerProvider.get("adservice.test.1");
-
-    // Span testSpan = tracer.spanBuilder("testSpan").startSpan();
-    // testSpan.end();
-
-    // logger.info("span are exported");
 
     return openTelemetry;
 

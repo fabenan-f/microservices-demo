@@ -29,13 +29,14 @@ import (
 	// "google.golang.org/grpc/codes"
 	// "google.golang.org/grpc/status"
 
-	grpcotel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+	"go.opentelemetry.io/otel/trace"
 
 	pb "github.com/GoogleCloudPlatform/microservices-demo/src/shippingservice/genproto"
 	// healthpb "google.golang.org/grpc/health/grpc_health_v1"
@@ -83,9 +84,9 @@ func main() {
 
 	var srv *grpc.Server
 	srv = grpc.NewServer(
-		// Interceptors update response before it's returned to client
-		grpc.UnaryInterceptor(grpcotel.UnaryServerInterceptor()),
-		grpc.StreamInterceptor(grpcotel.StreamServerInterceptor()),
+	// Interceptors update response before it's returned to client
+	// grpc.UnaryInterceptor(grpcotel.UnaryServerInterceptor()),
+	// grpc.StreamInterceptor(grpcotel.StreamServerInterceptor()),
 	)
 
 	svc := &server{}
@@ -117,9 +118,7 @@ func (s *server) GetQuote(ctx context.Context, in *pb.GetQuoteRequest) (*pb.GetQ
 	// log.Info("[GetQuote] received request")
 	// defer log.Info("[GetQuote] completed request")
 
-	tp := otel.GetTracerProvider()
-	var tracer = tp.Tracer("src/shippingservice/GetQuote")
-	_, span := tracer.Start(ctx, "hipstershop.ShippingService/GetQuote/GeneratingPriceQuote")
+	span := trace.SpanFromContext(ctx)
 	defer span.End()
 
 	// 1. Our quote system requires the total number of items to be shipped.
@@ -127,6 +126,8 @@ func (s *server) GetQuote(ctx context.Context, in *pb.GetQuoteRequest) (*pb.GetQ
 	for _, item := range in.Items {
 		count += int(item.Quantity)
 	}
+
+	span.SetAttributes(attribute.Int("items", count))
 
 	// 2. Generate a quote based on the total number of items to be shipped.
 	quote := CreateQuoteFromCount(count)
