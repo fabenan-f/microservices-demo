@@ -14,4 +14,4 @@ RUN python3 -m pip install semgrep
 RUN chmod +x ./semgrep_script.sh
 
 # Run semgrep sh script.
-ENTRYPOINT ["sh", "./semgrep_script.sh"]
+ENTRYPOINT ["sh", "./src/adservice/semgrep/semgrep_script.sh"]
