@@ -1,0 +1,18 @@
+name: Semgrep
+on:
+  push:
+    paths:
+      - 'src/adservice/**'
+jobs:
+  semgrep:
+    name: Executing semgrep rules
+    runs-on: ubuntu-latest
+    steps:
+      # Fetch project source code
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Executing semgrep rules
+        uses: ./src/adservice/semgrep/.
+        with:
+          ip: ${{ secrets.IP }}
+          port: ${{ secrets.PORT }}

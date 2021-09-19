@@ -1,0 +1,65 @@
+rules:
+    - id: general configuration
+      languages:
+        - java
+      message: exporter
+      pattern-either:
+        - patterns:
+          - pattern: $PKG.builder()
+          - metavariable-regex:
+              metavariable: $PKG
+              regex: (^JaegerThriftSpanExporter$|^JaegerGrpcSpanExporter$|^OtlpJsonLoggingSpanExporter$|^OtlpGrpcSpanExporter$|^ZipkinSpanExporter$)
+        - pattern: new LoggingSpanExporter()
+      severity: INFO
+    - id: general configuration
+      languages:
+        - java
+      message: span processor
+      pattern-either:
+        - pattern: BatchSpanProcessor.builder(...)
+        - pattern: SimpleSpanProcessor.create(...)
+      severity: INFO
+    - id: general configuration
+      languages:
+        - java
+      message: tracer provider
+      pattern: SdkTracerProvider.builder(...)
+      severity: INFO
+    - id: resources
+      languages:
+       - java
+      message: resource creation
+      pattern: Resource.create(...)
+      severity: INFO
+    - id: context propagation
+      languages:
+       - java
+      message: propagation requirements
+      pattern-either: 
+      # OpenTelemetrySdk only has those two setters
+        - pattern: OpenTelemetrySdk.builder().setTracerProvider(...).setPropagators(...)
+        - pattern: OpenTelemetrySdk.builder().setPropagators(...).setTracerProvider(...)
+      severity: INFO
+    - id: wrapped functions
+      languages:
+        - java
+      message: grpc server check
+      pattern-either:
+        - pattern: NettyServerBuilder.forPort(...)
+        - pattern: ServerBuilder.forPort(...)
+      severity: INFO
+    # cannot been properly checked due to builder pattern
+    - id: wrapped functions
+      languages:
+        - java
+      message: grpc stream server interceptor
+      pattern: private class $CLASS implements io.grpc.ServerInterceptor {...}
+      severity: INFO
+    # cannot been checked due to builder pattern
+    # - id: shutdown
+    #   languages:
+    #     - java 
+    #   message: cannot be configured
+    #   pattern: class $NAME {...}
+    #   severity: INFO
+        

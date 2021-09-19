@@ -1,0 +1,22 @@
+rules:
+    - id: function-count
+      languages:
+        - go
+      message: count functions
+      patterns:
+      - pattern: |
+            func $FUNC(...) {
+                ...
+            }
+      severity: INFO
+    - id: attribute-usage
+      languages:
+        - go
+      message: Found attribute
+      patterns:
+      - pattern-inside: |
+            func $FUNC(...) {
+                ...
+            }
+      - pattern: $SPAN.SetAttributes(...)
+      severity: INFO

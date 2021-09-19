@@ -1,0 +1,48 @@
+rules:
+    - id: id for config file
+      languages:
+        - java
+      message: adservice
+      pattern: package $NAME;
+      severity: INFO
+    - id: error state
+      languages:
+        - java
+      message: cannot be configured
+      # - try-catch-finally block not supported yet
+      # https://semgrep.dev/docs/experiments/overview/
+      # ideal pattern: |
+      #     try {
+      #       ...
+      #     } catch (...) {
+      #       ...
+      #     }
+      pattern: class $NAME {...}
+      severity: INFO
+    - id: span end
+      languages:
+        - java
+      message: cannot be configured
+      # - builder pattern too variable
+      # - try-catch-finally block not supported yet:
+      # https://semgrep.dev/docs/experiments/overview/
+      # ideal pattern: |
+      #     Span $SPAN = tracer.(methods).startSpan();
+      #     ...
+      #     finally {
+      #       $SPAN.end();
+      #     }
+      pattern: class $NAME {...}
+      severity: INFO
+    - id: semantic conventions
+      languages:
+        - java
+      message: semantic conventions check
+      pattern: import io.opentelemetry.semconv.resource.attributes.ResourceAttributes;
+      severity: INFO
+    - id: checking attributes
+      languages:
+        - java
+      message: found attribute
+      pattern: $SPAN.setAttribute($KEY, $VALUE);
+      severity: INFO

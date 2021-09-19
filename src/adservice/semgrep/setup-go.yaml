@@ -1,0 +1,229 @@
+rules:
+    - id: general configuration
+      languages:
+        - go
+      message: exporter
+      pattern-either:
+        - patterns: 
+          - pattern-inside: |
+              import "go.opentelemetry.io/otel/exporters/"
+              ...
+          - pattern: $PKG.New(...)
+          - metavariable-regex:
+              metavariable: $PKG
+              regex: (^jaeger$|^zipkin$|^stdouttrace$|^otlptrace$)
+        - patterns:
+          - pattern-inside: |
+              import $ALIAS "go.opentelemetry.io/otel/exporters/"
+              ...
+          - pattern: $ALIAS.New(...)
+      severity: INFO
+    - id: general configuration
+      languages:
+        - go
+      message: span processor
+      pattern-either:
+        - patterns: 
+          - pattern-inside: |
+              import $ALIAS "go.opentelemetry.io/otel/sdk/trace"
+              ...
+          - pattern: $ALIAS.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: (^NewSimpleSpanProcessor$|^NewBatchSpanProcessor$)
+        - patterns:
+          - pattern-inside: |
+              import "go.opentelemetry.io/otel/sdk/trace"
+              ...
+          - pattern: $PKG.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $PKG
+              regex: ^trace$
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: (^NewSimpleSpanProcessor$|^NewBatchSpanProcessor$)
+      severity: INFO
+    - id: general configuration
+      languages:
+        - go
+      message: tracer provider
+      pattern-either:
+        - patterns: 
+          - pattern-inside: |
+              import $ALIAS "go.opentelemetry.io/otel/sdk/trace"
+              ...
+          - pattern: $ALIAS.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: ^NewTracerProvider$
+        - patterns:
+          - pattern-inside: |
+              import "go.opentelemetry.io/otel/sdk/trace"
+              ...
+          - pattern: $PKG.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $PKG
+              regex: ^trace$
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: ^NewTracerProvider$
+      severity: INFO
+    - id: resources
+      languages:
+        - go
+      message: resource creation
+      pattern-either:
+        - patterns: 
+          - pattern-inside: |
+              import $ALIAS "go.opentelemetry.io/otel/sdk/resource"
+              ...
+          - pattern: $ALIAS.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: (^Default$|^Detect$|^Environment$|^New$|^NewWithAttributes$)
+        - patterns:
+          - pattern-inside: |
+              import "go.opentelemetry.io/otel/sdk/resource"
+              ...
+          - pattern: $PKG.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $PKG
+              regex: ^resource$
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: (^Default$|^Detect$|^Environment$|^New$|^NewWithAttributes$)
+      severity: INFO
+    - id: context propagation
+      languages:
+        - go
+      message: propagation requirements
+      pattern-either:
+        - patterns:
+          - pattern-inside: |
+              import "go.opentelemetry.io/otel"
+              ...
+          - pattern: |
+              $PKG.SetTracerProvider(...)
+              ...
+              $PKG.SetTextMapPropagator(...)
+          - metavariable-regex:
+              metavariable: $PKG
+              regex: ^otel$
+        - patterns:
+          - pattern-inside: |
+              import $PRO "go.opentelemetry.io/otel"
+              ...
+          - pattern: |
+              $PRO.SetTracerProvider(...)
+              ...
+              $PRO.SetTextMapPropagator(...)   
+      severity: INFO
+    - id: wrapped functions
+      languages:
+        - go
+      message: http server check
+      pattern-either:
+        - pattern: import "net/http"
+        - pattern: import $ALIAS "net/http"
+      severity: INFO
+    - id: wrapped functions
+      languages:
+        - go
+      message: http server instrumentation
+      pattern-either:
+        - patterns:
+          - pattern-inside: |
+              import "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+              ...
+          - pattern: $PKG.NewHandler(...)
+          - metavariable-regex:
+              metavariable: $PKG
+              regex: ^otelhttp$  
+        - patterns:
+          - pattern-inside: |
+              import $ALIAS "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+              ...
+          - pattern: $ALIAS.NewHandler(...)
+      severity: INFO
+    - id: wrapped functions
+      languages:
+        - go
+      message: grpc server check
+      pattern-either:
+        - patterns: 
+          - pattern: import "$LIB"
+          - metavariable-regex: 
+              metavariable: $LIB
+              regex: ^"google.golang.org/grpc"$
+        - patterns: 
+          - pattern: import $ALIAS "$LIB"
+          - metavariable-regex: 
+              metavariable: $LIB
+              regex: ^"google.golang.org/grpc"$
+      severity: INFO
+    - id: wrapped functions
+      languages:
+        - go
+      message: grpc unary server interceptor
+      pattern-either:
+        - patterns:
+          - pattern-inside: |
+              import "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+              ...
+          - pattern: $PKG.UnaryServerInterceptor()
+          - metavariable-regex:
+              metavariable: $PKG
+              regex: ^otelgrpc$
+        - patterns:
+          - pattern-inside: |
+              import $ALIAS "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+              ...
+          - pattern: $ALIAS.UnaryServerInterceptor()
+      severity: INFO
+    - id: wrapped functions
+      languages:
+        - go
+      message: grpc stream server interceptor
+      pattern-either:
+        - patterns:
+          - pattern-inside: |
+              import "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+              ...
+          - pattern: $PKG.StreamServerInterceptor()
+          - metavariable-regex:
+              metavariable: $PKG
+              regex: ^otelgrpc$
+        - patterns:
+          - pattern-inside: |
+              import $ALIAS "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+              ...
+          - pattern: $ALIAS.StreamServerInterceptor()
+      severity: INFO
+    - id: shutdown
+      languages:
+        - go
+      message: shutdown config
+      pattern: $TP.Shutdown($CTX)
+      # pattern-either:
+      #   - patterns: 
+      #     - pattern-inside: |
+      #         import $ALIAS "go.opentelemetry.io/otel/sdk/trace"
+      #         ...
+      #     - pattern: $ALIAS.$FUNC(...)
+      #     - metavariable-regex:
+      #         metavariable: $FUNC
+      #         regex: ^Shutdown$
+      #   - patterns:
+      #     - pattern-inside: |
+      #         import "go.opentelemetry.io/otel/sdk/trace"
+      #         ...
+      #     - pattern: $PKG.$FUNC(...)
+      #     - metavariable-regex:
+      #         metavariable: $PKG
+      #         regex: ^trace$
+      #     - metavariable-regex:
+      #         metavariable: $FUNC
+      #         regex: ^Shutdown$
+      severity: INFO
+
+        

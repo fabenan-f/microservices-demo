@@ -1,0 +1,21 @@
+rules:
+    - id: "batch processing"
+      languages:
+        - java
+      message: "batch processing check"
+      pattern: BatchSpanProcessor.builder(...)
+      severity: INFO
+    - id: "sampling"
+      languages:
+        - java
+      message: "sampling check"
+      pattern-either:
+        - pattern: Sampler.parednBased(...)
+        - pattern: Sampler.traceIdRatioBased​(...)
+      severity: INFO
+    - id: "resource detector"
+      languages:
+        - java
+      message: "not part of library"
+      pattern: class $NAME {...}
+      severity: INFO

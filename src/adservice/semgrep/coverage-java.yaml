@@ -1,0 +1,44 @@
+rules:
+    # - id: spans service
+    #   languages:
+    #     - java
+    #   message: cannot be configured
+    #   # - builder pattern too variable
+    #   # ideal pattern: Span $SPAN = tracer.(methods).startSpan();
+    #   pattern: class $NAME {...}
+    #   severity: INFO
+    - id: function counter
+      languages:
+        - java
+      message: function found
+      pattern: |
+            $RETURN $FUNC(...) {
+                ...
+            }
+      severity: INFO
+    - id: set attribute
+      languages:
+        - java
+      message: attribute found
+      pattern: |
+          $RETURN $FUNC(...) {
+            ...
+            $SPAN.setAttribute(...);
+            ...
+          }
+      severity: INFO
+    # - id: error handlings counter
+    #   languages:
+    #     - java
+    #   message: cannot be configured
+    #   # - builder pattern too variable
+    #   # - try-catch-finally block not supported yet
+    #   # https://semgrep.dev/docs/experiments/overview/
+    #   # ideal pattern: |
+    #   #     try {
+    #   #       ...
+    #   #     } catch (...) {
+    #   #       $SPAN.setStatus(StatusCode.ERROR, ...);
+    #   #     }
+    #   pattern: class $NAME {...}
+    #   severity: INFO

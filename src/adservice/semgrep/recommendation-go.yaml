@@ -1,0 +1,41 @@
+rules:
+    - id: "batch processing"
+      languages:
+        - go
+      message: "batch processing check"
+      pattern-either:
+        - pattern: | 
+            $BP := $PKG.NewBatchSpanProcessor(...)
+            ...
+            $TR := $PKG.NewTracerProvider(..., $PKG.WithSpanProcessor($BP), ...)
+        - pattern: $TR := $PKG.NewTracerProvider(..., $PKG.WithSpanProcessor($PKG.NewBatchSpanProcessor(...)), ...)
+      severity: INFO
+    - id: "sampling"
+      languages:
+        - go
+      message: "sampling check"
+      pattern-either:
+        - patterns:
+          - pattern: | 
+              $SAM := $PKG.$SAMMETHOD(...)
+              ...
+              $TR := $PKG.NewTracerProvider(..., $PKG.WithSampler($SAM), ...)
+          - metavariable-regex:
+              metavariable: $SAMMETHOD
+              regex: (^ParentBased$|^TraceIDRatioBased$)
+              # default: AlwaysSample()
+        - patterns:
+          - pattern: $TR := $PKG.NewTracerProvider(..., $PKG.WithSampler($PKG.$SAMMETHOD(...)), ...)
+          - metavariable-regex:
+              metavariable: $SAMMETHOD
+              regex: (^ParentBased$|^TraceIDRatioBased$)
+      severity: INFO
+    - id: "resource detector"
+      languages:
+        - go
+      message: "resource detector check"
+      pattern: | 
+          $DEC := $PKG.StringDetector(...)
+          ...
+          $RSC := $PKG.Detect(ctx, $DEC) 
+      severity: INFO
