@@ -3,3 +3,6 @@ description: Resulting docker container contains all necessary semgrep execution
 runs:
   using: 'docker'
   image: 'Dockerfile'
+  args:
+    - ${{ inputs.ip }}
+    - ${{ inputs.port }}
