@@ -11,7 +11,7 @@ COPY . /code
 RUN python3 -m pip install semgrep
 
 # Give permission to execute script.
-RUN chmod +x ./semgrep_go_script.sh
+RUN chmod +x ./semgrep_script.sh
 
 # Run semgrep sh script.
 ENTRYPOINT ["sh", "./semgrep_script.sh"]
